@@ -69,57 +69,50 @@ class Board {
 			if(rows < solutions.size())
 				return solutions[rows];
 
-			if(solutions.size() == 2) {
-				rows_from = double_rows;
-
-				int result = 1 << 30;
-
-				for(uint32_t i = 0; i < MASK_SIZE; ++i) {
-					for(auto& x : rows_from[i]) {
-						if(result > x.second && isRowFilled(i, x.first))
-							result = x.second;
-					}
-				}
-
-				solutions.push_back(result);
-			}
+			if(solutions.size() == 2)
+				rows_from[0].insert({MASK_SIZE - 1, 0});
 
 			for(uint32_t r = solutions.size(); r <= rows; ++r) {
 				std::atomic<uint32_t> mask(0);
 				std::atomic<int> result(1 << 30);
 
 				std::vector<std::thread> threads;
-				for(int i = 0; i < THREAD_COUNT; ++i) {
+
+				for(int i = 0; i < THREAD_COUNT; ++i)
 					threads.emplace_back([&mask, &result, this]() {
-						uint32_t i;
+						uint32_t middle;
 						while(1) {
-							i = mask++;
-							if(i >= MASK_SIZE) break;
+							middle = mask++;
+							if(middle >= MASK_SIZE) break;
 
-							for(auto& y : double_rows[i]) {
-								for(uint32_t j = 0; j < MASK_SIZE; ++j) {
-									if(j & y.first) continue;
+							for(uint32_t i = 0; i <= middle; ++i) {
+								uint32_t j = middle ^ i;
+								if(i & j) continue;
 
-									for(auto &x : rows_from[j]) {
-										if(!isRowFilled(x.first, j | y.first)) continue;
-										auto p = rows_to[i].insert({j | y.first, x.second + y.second});
+								for(auto &x : rows_from[i]) {
+									if(!isRowFilled(x.first, middle)) continue;
+									for(auto& y : double_rows[j]) {
+										auto p = rows_to[middle].insert({y.first, x.second + y.second});
 										if(!p.second && p.first->second > x.second + y.second)
 											p.first->second = x.second + y.second;
+										if(result > p.first->second && isRowFilled(middle, y.first))
+											result = p.first->second;
 									}
 								}
 							}
-
-							for(auto& x : rows_to[i]) {
-								if(result > x.second && isRowFilled(i, x.first))
-									result = x.second;
-							}
 						}
 					});
-				}
 
 				for(auto& t : threads) t.join();
 
-				rows_from = std::move(rows_to);
+				for(uint32_t i = 0; i < MASK_SIZE; ++i)
+					rows_from[i].clear();
+				for(uint32_t i = 0; i < MASK_SIZE; ++i) {
+					for(auto&x : rows_to[i]) {
+						rows_from[x.first].insert({i, x.second});
+					}
+					rows_to[i].clear();
+				}
 
 				solutions.push_back(result);
 			}
