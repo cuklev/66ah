@@ -3,7 +3,6 @@
 
 #include <unordered_map>
 #include <vector>
-#include <array>
 
 #include <cstdint>
 
@@ -12,14 +11,12 @@
 
 #define THREAD_COUNT 8
 
-template<int COLS>
 class Board {
 	private:
-		static constexpr uint32_t MASK_SIZE = 1u << COLS;
-		using DoubeRow = std::array<std::unordered_map<uint32_t, int>, MASK_SIZE>;
+		const uint32_t COLS;
+		const uint32_t MASK_SIZE;
 
-		DoubeRow double_rows;
-		DoubeRow rows_from, rows_to;
+		std::vector<std::unordered_map<uint32_t, int>> double_rows, rows_from, rows_to;
 
 		std::vector<int> solutions;
 
@@ -60,8 +57,9 @@ class Board {
 		}
 
 	public:
-		Board() {
+		Board(uint32_t cols) : COLS(cols), MASK_SIZE(1u << COLS) {
 			solutions = {0, 0};
+			double_rows.resize(MASK_SIZE);
 			initialize(COLS, 0, 0, 0);
 		}
 
@@ -70,7 +68,11 @@ class Board {
 				return solutions[rows];
 
 			if(solutions.size() == 2)
+			{
+				rows_from.resize(MASK_SIZE);
 				rows_from[0].insert({MASK_SIZE - 1, 0});
+				rows_to.resize(MASK_SIZE);
+			}
 
 			for(uint32_t r = solutions.size(); r <= rows; ++r) {
 				std::atomic<uint32_t> mask(0);
@@ -80,12 +82,11 @@ class Board {
 
 				for(int i = 0; i < THREAD_COUNT; ++i)
 					threads.emplace_back([&mask, &result, this]() {
-						uint32_t middle;
 						while(1) {
-							middle = mask++;
+							uint32_t middle = mask++;
 							if(middle >= MASK_SIZE) break;
 
-							for(uint32_t i = 0; i <= middle; ++i) {
+							for(uint32_t i = 0; i <= mask; ++i) {
 								uint32_t j = middle ^ i;
 								if(i & j) continue;
 
@@ -105,10 +106,9 @@ class Board {
 
 				for(auto& t : threads) t.join();
 
-				for(uint32_t i = 0; i < MASK_SIZE; ++i)
-					rows_from[i].clear();
+				for(auto& x : rows_from) x.clear();
 				for(uint32_t i = 0; i < MASK_SIZE; ++i) {
-					for(auto&x : rows_to[i]) {
+					for(auto& x : rows_to[i]) {
 						rows_from[x.first].insert({i, x.second});
 					}
 					rows_to[i].clear();
