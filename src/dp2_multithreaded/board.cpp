@@ -5,35 +5,38 @@
 
 #define THREAD_COUNT 8
 
-void Board::initialize(int col, uint32_t first, uint32_t second, int pieces) {
+void Board::initialize(int col, uint32_t x, uint32_t y, int pieces) {
 	if(col == 0) {
-		double_rows[second].insert({first, pieces});
+		double_rows[x].insert({y, pieces});
 		return;
 	}
 
-	initialize(col - 1, first, second, pieces);
+	--col;
+	initialize(col, x, y, pieces);
 
-	if(col == 1) return;
+	if(col == 0) return;
 
-	first  |= 0b11u << (col - 2);
-	second |= 0b01u << (col - 2);
-	initialize(col - 2, first, second, pieces + 1);
+	--col; ++pieces;
+	x |= 0b11u << col;
+	y |= 0b01u << col;
+	initialize(col, x, y, pieces);
 
-	second ^= 0b11u << (col - 2);
-	initialize(col - 2, first, second, pieces + 1);
+	y ^= 0b11u << col;
+	initialize(col, x, y, pieces);
 
-	first  ^= 0b01u << (col - 2);
-	second |= 0b01u << (col - 2);
-	initialize(col - 2, first, second, pieces + 1);
+	x  ^= 0b01u << col;
+	y |= 0b01u << col;
+	initialize(col, x, y, pieces);
 
-	first  ^= 0b11u << (col - 2);
-	initialize(col - 2, first, second, pieces + 1);
+	x  ^= 0b11u << col;
+	initialize(col, x, y, pieces);
 
-	if(col == 2) return;
+	if(col == 0) return;
 
-	first  |= 0b111u << (col - 3);
-	second |= 0b111u << (col - 3);
-	initialize(col - 3, first, second, pieces + 2);
+	--col; ++pieces;
+	x |= 0b111u << col;
+	y |= 0b111u << col;
+	initialize(col, x, y, pieces);
 }
 
 Board::Board(uint32_t cols) : COLS(cols), MASK_SIZE(1u << COLS) {
