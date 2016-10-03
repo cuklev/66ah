@@ -1,5 +1,15 @@
-# 66ah
-Interesting problem with no so interesting repo name.
+# Problem description
+
+You are given a `n`x`m` square board and pieces as shown in the picture:
+
+![piece](./img/piece.png)
+
+What is the minimum amount of pieces needed to put on the board so that there is no space for more pieces.
+
+- Pieces must be aligned to the cells of the board
+- Pieces should not overlap
+- Pieces can not be split/broken
+- Pieces should not stick out of the board
 
 ### Solutions for square boards
 
