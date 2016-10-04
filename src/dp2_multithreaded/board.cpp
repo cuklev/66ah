@@ -5,44 +5,44 @@
 
 #define THREAD_COUNT 8
 
-void Board::initialize(int col, uint32_t x, uint32_t y, int pieces) {
+void Board::computeDoubleRows(int col, uint32_t x, uint32_t y, int pieces) {
 	if(col == 0) {
 		double_rows[x].insert({y, pieces});
 		return;
 	}
 
 	--col;
-	initialize(col, x, y, pieces);
+	computeDoubleRows(col, x, y, pieces);
 
 	if(col == 0) return;
 
 	--col; ++pieces;
 	x |= 0b11u << col;
 	y |= 0b01u << col;
-	initialize(col, x, y, pieces);
+	computeDoubleRows(col, x, y, pieces);
 
 	y ^= 0b11u << col;
-	initialize(col, x, y, pieces);
+	computeDoubleRows(col, x, y, pieces);
 
 	x  ^= 0b01u << col;
 	y |= 0b01u << col;
-	initialize(col, x, y, pieces);
+	computeDoubleRows(col, x, y, pieces);
 
 	x  ^= 0b11u << col;
-	initialize(col, x, y, pieces);
+	computeDoubleRows(col, x, y, pieces);
 
 	if(col == 0) return;
 
 	--col; ++pieces;
 	x |= 0b111u << col;
 	y |= 0b111u << col;
-	initialize(col, x, y, pieces);
+	computeDoubleRows(col, x, y, pieces);
 }
 
 Board::Board(uint32_t cols) : COLS(cols), MASK_SIZE(1u << COLS) {
 	solutions = {0, 0};
 	double_rows.resize(MASK_SIZE);
-	initialize(COLS, 0, 0, 0);
+	computeDoubleRows(COLS, 0, 0, 0);
 }
 
 int Board::getSolution(uint32_t rows) {

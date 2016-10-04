@@ -13,7 +13,7 @@ class Board {
 
 		std::vector<int> solutions;
 
-		void initialize(int, uint32_t, uint32_t, int);
+		void computeDoubleRows(int, uint32_t, uint32_t, int);
 
 		inline bool isRowFilled(uint32_t x, uint32_t y) {
 			uint32_t z = x & y;
