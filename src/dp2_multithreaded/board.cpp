@@ -50,8 +50,7 @@ int Board::GetSolution(uint32_t rows) {
 	if(rows < solutions.size())
 		return solutions[rows];
 
-	if(solutions.size() == 2)
-	{
+	if(solutions.size() == 2) {
 		rows_from.resize(MASK_SIZE);
 		rows_from[0].push_back({MASK_SIZE - 1, 0});
 		rows_to.resize(MASK_SIZE);
