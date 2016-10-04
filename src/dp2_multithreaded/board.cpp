@@ -88,6 +88,8 @@ int Board::GetSolution(uint32_t rows) {
 
 		for(auto& t : threads) t.join();
 
+		solutions.push_back(result);
+
 		for(auto& x : rows_from) x.clear();
 		for(uint32_t i = 0; i < MASK_SIZE; ++i) {
 			for(auto& x : rows_to[i]) {
@@ -95,8 +97,6 @@ int Board::GetSolution(uint32_t rows) {
 			}
 			rows_to[i].clear();
 		}
-
-		solutions.push_back(result);
 	}
 
 	return solutions.back();
