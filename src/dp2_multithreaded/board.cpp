@@ -5,47 +5,47 @@
 
 #define THREAD_COUNT 8
 
-void Board::computeDoubleRows(int col, uint32_t x, uint32_t y, int pieces) {
+void Board::ComputeDoubleRows(int col, uint32_t x, uint32_t y, int pieces) {
 	if(col == 0) {
 		double_rows[x].push_back({y, pieces});
 		return;
 	}
 
 	--col;
-	computeDoubleRows(col, x, y, pieces);
+	ComputeDoubleRows(col, x, y, pieces);
 
 	if(col == 0) return;
 
 	--col; ++pieces;
 	x |= 0b11u << col;
 	y |= 0b01u << col;
-	computeDoubleRows(col, x, y, pieces);
+	ComputeDoubleRows(col, x, y, pieces);
 
 	y ^= 0b11u << col;
-	computeDoubleRows(col, x, y, pieces);
+	ComputeDoubleRows(col, x, y, pieces);
 
-	x  ^= 0b01u << col;
-	y |= 0b01u << col;
-	computeDoubleRows(col, x, y, pieces);
+	x ^= 0b01u << col;
+	y |= 0b11u << col;
+	ComputeDoubleRows(col, x, y, pieces);
 
-	x  ^= 0b11u << col;
-	computeDoubleRows(col, x, y, pieces);
+	x ^= 0b11u << col;
+	ComputeDoubleRows(col, x, y, pieces);
 
 	if(col == 0) return;
 
 	--col; ++pieces;
 	x |= 0b111u << col;
 	y |= 0b111u << col;
-	computeDoubleRows(col, x, y, pieces);
+	ComputeDoubleRows(col, x, y, pieces);
 }
 
 Board::Board(uint32_t cols) : COLS(cols), MASK_SIZE(1u << COLS) {
 	solutions = {0, 0};
 	double_rows.resize(MASK_SIZE);
-	computeDoubleRows(COLS, 0, 0, 0);
+	ComputeDoubleRows(COLS, 0, 0, 0);
 }
 
-int Board::getSolution(uint32_t rows) {
+int Board::GetSolution(uint32_t rows) {
 	if(rows < solutions.size())
 		return solutions[rows];
 
@@ -73,12 +73,12 @@ int Board::getSolution(uint32_t rows) {
 						if(i & j) continue;
 
 						for(auto &x : rows_from[i]) {
-							if(!isRowFilled(x.first, middle)) continue;
+							if(!IsRowFilled(x.first, middle)) continue;
 							for(auto& y : double_rows[j]) {
 								auto p = rows_to[middle].insert({y.first, x.second + y.second});
 								if(!p.second && p.first->second > x.second + y.second)
 									p.first->second = x.second + y.second;
-								if(result > p.first->second && isRowFilled(middle, y.first))
+								if(result > p.first->second && IsRowFilled(middle, y.first))
 									result = p.first->second;
 							}
 						}

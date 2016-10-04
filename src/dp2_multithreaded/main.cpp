@@ -9,5 +9,5 @@ int main() {
 	Board board(cols);
 
 	for(int r = 1; r <= rows; ++r)
-		std::cout << r << 'x' << cols << " -> " << board.getSolution(r) << '\n';
+		std::cout << r << 'x' << cols << " -> " << board.GetSolution(r) << '\n';
 }

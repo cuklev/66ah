@@ -9,14 +9,14 @@ class Board {
 		const uint32_t COLS;
 		const uint32_t MASK_SIZE;
 
-		std::vector<std::vector<std::pair<uint32_t, int>>> double_rows,  rows_from;
+		std::vector<std::vector<std::pair<uint32_t, int>>> double_rows, rows_from;
 		std::vector<std::unordered_map<uint32_t, int>> rows_to;
 
 		std::vector<int> solutions;
 
-		void computeDoubleRows(int, uint32_t, uint32_t, int);
+		void ComputeDoubleRows(int, uint32_t, uint32_t, int);
 
-		inline bool isRowFilled(uint32_t x, uint32_t y) {
+		inline bool IsRowFilled(uint32_t x, uint32_t y) {
 			uint32_t z = x & y;
 			return (x | y | (((z | MASK_SIZE) >> 1) & ((z << 1) | 1))) == MASK_SIZE - 1;
 		}
@@ -24,7 +24,7 @@ class Board {
 	public:
 		Board(uint32_t);
 
-		int getSolution(uint32_t);
+		int GetSolution(uint32_t);
 };
 
 #endif // __BOARD_H
