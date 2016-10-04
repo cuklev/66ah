@@ -7,7 +7,7 @@
 
 void Board::computeDoubleRows(int col, uint32_t x, uint32_t y, int pieces) {
 	if(col == 0) {
-		double_rows[x].insert({y, pieces});
+		double_rows[x].push_back({y, pieces});
 		return;
 	}
 
@@ -52,7 +52,7 @@ int Board::getSolution(uint32_t rows) {
 	if(solutions.size() == 2)
 	{
 		rows_from.resize(MASK_SIZE);
-		rows_from[0].insert({MASK_SIZE - 1, 0});
+		rows_from[0].push_back({MASK_SIZE - 1, 0});
 		rows_to.resize(MASK_SIZE);
 	}
 
@@ -91,7 +91,7 @@ int Board::getSolution(uint32_t rows) {
 		for(auto& x : rows_from) x.clear();
 		for(uint32_t i = 0; i < MASK_SIZE; ++i) {
 			for(auto& x : rows_to[i]) {
-				rows_from[x.first].insert({i, x.second});
+				rows_from[x.first].push_back({i, x.second});
 			}
 			rows_to[i].clear();
 		}

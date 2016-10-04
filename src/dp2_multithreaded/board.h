@@ -9,7 +9,8 @@ class Board {
 		const uint32_t COLS;
 		const uint32_t MASK_SIZE;
 
-		std::vector<std::unordered_map<uint32_t, int>> double_rows, rows_from, rows_to;
+		std::vector<std::vector<std::pair<uint32_t, int>>> double_rows,  rows_from;
+		std::vector<std::unordered_map<uint32_t, int>> rows_to;
 
 		std::vector<int> solutions;
 
