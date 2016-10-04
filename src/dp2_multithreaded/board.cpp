@@ -4,6 +4,7 @@
 #include <atomic>
 
 #define THREAD_COUNT 8
+#define INFINITY (1 << 30)
 
 void Board::ComputeDoubleRows(int col, uint32_t x, uint32_t y, int pieces) {
 	if(col == 0) {
@@ -58,12 +59,13 @@ int Board::GetSolution(uint32_t rows) {
 
 	for(uint32_t r = solutions.size(); r <= rows; ++r) {
 		std::atomic<uint32_t> mask(0);
-		std::atomic<int> result(1 << 30);
+		std::atomic<int> result_all(INFINITY);
 
 		std::vector<std::thread> threads;
 
 		for(int i = 0; i < THREAD_COUNT; ++i)
-			threads.emplace_back([&mask, &result, this]() {
+			threads.emplace_back([this, &mask, &result_all]() {
+				int result = INFINITY;
 				while(1) {
 					uint32_t middle = mask++;
 					if(middle >= MASK_SIZE) break;
@@ -84,11 +86,14 @@ int Board::GetSolution(uint32_t rows) {
 						}
 					}
 				}
+
+				if(result_all > result)
+					result_all = result;
 			});
 
 		for(auto& t : threads) t.join();
 
-		solutions.push_back(result);
+		solutions.push_back(result_all);
 
 		for(auto& x : rows_from) x.clear();
 		for(uint32_t i = 0; i < MASK_SIZE; ++i) {
