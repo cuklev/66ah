@@ -38,6 +38,13 @@ void compute_double_rows(int* const double_rows, const int n, int col, uint32_t 
 	compute_double_rows(double_rows, n, col, x, y, piece_count);
 }
 
+std::string get_kernel_code() {
+	std::ifstream in("kernel.cl");
+	return std::string(
+		(std::istreambuf_iterator<char>(in)),
+		std::istreambuf_iterator<char>());
+}
+
 int main() {
 	/* int n; */
 	/* std::cin >> n; // non-square later */
@@ -81,14 +88,9 @@ int main() {
 
 	// create the program that we want to execute on the device
 	cl::Program::Sources sources;
-	{
-		std::ifstream in("kernel.cl");
-		std::string source(
-			(std::istreambuf_iterator<char>(in)),
-			std::istreambuf_iterator<char>());
 
-		sources.push_back({source.c_str(), source.size()});
-	}
+	std::string source = get_kernel_code();
+	sources.push_back({source.c_str(), source.size()});
 
 	cl::Program program(context, sources);
 	if (program.build({default_device}) != CL_SUCCESS) {
